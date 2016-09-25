@@ -1,13 +1,16 @@
-import os
 import logging
-import numpy as np
-from data.connection import Connection
-import data.dataloader as dataloader
+import os
+
 import data.colselection as columns
-import data.datahandler as datahandler
-import data.preprocessor as preprocessor
 import data.custom_transform as transformer
+import data.datahandler as datahandler
+import data.dataloader as dataloader
+import data.preprocessor as preprocessor
+import data.split_data as datasplitter
 import features.build_features as features
+from data.connection import Connection
+import learners.bayes as bayes
+# import learners.svm as svm
 
 if __name__ == '__main__':
     # init logging
@@ -21,6 +24,7 @@ if __name__ == '__main__':
     project_dir = os.path.join(os.path.dirname(__file__))
     logger.info('loading database from path {path}'.format(path=data_path))
     data_dir = os.path.join(project_dir, data_path)
+
     # load data
     output_col = columns.get_output_col()
     db = Connection(data_dir)
@@ -38,4 +42,10 @@ if __name__ == '__main__':
     output_transformed = preprocessor.transform_output(output, output_mapping)
 
     # select features
-    features.select_features(data, output_transformed)
+    data_trimmed = features.select_features(data, output_transformed)
+
+    # split dataset and output to train and test set
+    X_train, X_test, y_train, y_test = datasplitter.split_train_test(data_trimmed, output_transformed, 0.2)
+
+    # train and score svm model
+    bayes.train_test_svm(X_train, y_train, X_test, y_test)

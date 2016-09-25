@@ -12,7 +12,6 @@ def analyze_data_structure(data, table_info):
     result = {}
     for col in data.columns:
         result[col] = create_column_struct(table_info.ix[col, 'type'], data[col])
-        # logger.info('processed {col}, info: {info}'.format(col=col, info=result[col]))
     return result
 
 
